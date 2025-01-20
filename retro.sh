@@ -7,6 +7,19 @@ LEAK_ROTATE=",scale=w=2*iw:h=2*ih,rotate=angle=${LEAK_ANGLES}"
 LEAK_STR="[0]split[v0][v1];[v0]format=rgba,"
 LEAK_END=":a=${LEAK_LENGTH}*(Y/H)${LEAK_ROTATE}[fg];[v1][fg]overlay=(W-w)/2:(H-h)/2:shortest=1"
 
+
+if [ -z "$4" ]; then
+	FILE_TS=0
+else
+	if [[ "$4" == "1" ]]; then
+                FILE_TS=$(stat -c '%Y' "${1}")
+        else
+                FILE_TS=$4
+        fi
+fi
+
+
+
 case "$3" in
   "-leak_red")
     LEAK_MID="geq=r=255:g=00:b=0"
@@ -29,6 +42,7 @@ case "$3" in
 
   *)
     cp "${1}" /tmp/test.jpg
+    cp "${1}" /tmp/out.jpg
     ;;
 esac
 
@@ -107,17 +121,17 @@ esac
 case "$3" in
   *"leak"*)
     ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i "${1}" /tmp/test.jpg
-    ffplay -vf "${vintage},
+    ffmpeg -y -i /tmp/test.jpg -vf "${vintage},
                 ${vibrance},
                 ${equalizer},
                 ${blur},
                 ${chromatic},
                 ${lens},
                 ${vignette},
-                ${bloom}" -i /tmp/test.jpg
+                ${bloom}" /tmp/out.jpg
     ;;
   *)
-    ffplay -vf "${temperature},
+    ffmpeg -y -i /tmp/test.jpg -vf "${temperature},
                 ${vintage},
                 ${vibrance},
                 ${equalizer},
@@ -125,10 +139,19 @@ case "$3" in
                 ${chromatic},
                 ${lens},
                 ${vignette},
-                ${bloom}" -i /tmp/test.jpg
+                ${bloom}" /tmp/out.jpg
 
     ;;
 esac
 
+if [[ "$FILE_TS" != "0" ]]; then
+	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:boxborderw=20|80:bordercolor=black:borderw=0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out.jpg /tmp/test_out.jpg
+else
+	cp /tmp/out.jpg /tmp/test_out.jpg
+fi
+
+ffplay -i /tmp/test_out.jpg
+
 
 rm /tmp/test.jpg
+rm /tmp/out.jpg
