@@ -11,9 +11,19 @@ LEAK_END=":a=${LEAK_LENGTH}*(Y/H)${LEAK_ROTATE}[fg];[v1][fg]overlay=(W-w)/2:(H-h
 if [ -z "$4" ]; then
 	FILE_TS=0
 else
-	if [[ "$4" == "1" ]]; then
+	if [[ "$4" == "-1" ]]; then
+                FILE_TS=3141592653
+	elif [[ "$4" == "1" ]]; then
                 FILE_TS=$(stat -c '%Y' "${1}")
-        else
+		if [[ "$FILE_TS" -lt "100000" ]]; then
+			FILE_TS=$(date +%s)
+		fi
+        elif [[ "$4" == "2" ]]; then
+		FILE_TS=$(date +%s)
+	elif [[ "$4" == "3" ]]; then
+		TIME_TS=$(date +%s)
+                FILE_TS=$(shuf -i 0-$TIME_TS -n 1)
+	else
                 FILE_TS=$4
         fi
 fi
@@ -48,7 +58,7 @@ esac
 
 
 case "$2" in
-  "-fuji_instax")
+   "-fuji_instax")
     	bloom="split [a][b];
              [b] boxblur=4.5,
                     format=gbrp [b];
@@ -62,8 +72,8 @@ case "$2" in
 	temperature="colortemperature=temperature=8000"
 	equalizer="eq=gamma=1.25:contrast=1.05:saturation=0.9"
 	vignette="drawbox=x=0:y=0:w=2:h=ih:color=black@0.5:thickness=fill"
-    ;;
-  "-fuji_qs400")
+   ;;
+   "-fuji_qs400")
 	bloom="split [a][b];
              [b] boxblur=1.2,
                     format=gbrp [b];
@@ -71,14 +81,14 @@ case "$2" in
 
 	blur="gblur=sigma=1.5"
 	lens="lenscorrection=k1=0.125:k2=0.015"
-	chromatic="rgbashift=rh=-1.15:gh=1.15"
+	chromatic="rgbashift=rh=-1.15:gh=1.15,unsharp=5:5:5"
 	vintage="noise=c0s=25"
 	vibrance="vibrance=-0.25"
 	temperature="colortemperature=temperature=15000"
-	equalizer="eq=gamma=0.5:contrast=1.25:saturation=0.5:brightness=0.15"
+	equalizer="eq=gamma=0.55:contrast=1.25:saturation=0.5:brightness=0.05"
 	vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
-    ;;
-  "-fuji_qs800")
+   ;;
+   "-fuji_qs800")
 	bloom="split [a][b];
              [b] boxblur=1.5,
                     format=gbrp [b];
@@ -93,7 +103,7 @@ case "$2" in
 	equalizer="eq=gamma=1.5:contrast=1.1:saturation=0.8"
 	vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
     ;;
-  "-fuji_qs-outdoor")
+    "-fuji_qs-outdoor")
         bloom="split [a][b];
              [b] boxblur=1.5,
                     format=gbrp [b];
@@ -108,6 +118,112 @@ case "$2" in
         equalizer="eq=gamma=1.8:contrast=1.3:saturation=0.3"
         vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
     ;;
+    "-ilford_xp2")
+        bloom="split [a][b];
+             [b] boxblur=0.5,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.01"
+        lens="lenscorrection=k1=-0.075:k2=-0.075"
+        chromatic="rgbashift=rh=-0:gh=0,hue=s=0"
+        vintage="noise=c0s=0"
+        vibrance="vibrance=0.8"
+        temperature="colortemperature=temperature=5500"
+        equalizer="eq=gamma=0.5:contrast=1.5:saturation=0"
+        vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
+    "-ilford_hp5")
+        bloom="split [a][b];
+             [b] boxblur=0.5,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.01"
+        lens="lenscorrection=k1=-0.075:k2=-0.075"
+        chromatic="rgbashift=rh=-0:gh=0,hue=s=0,unsharp=5:5:1"
+        vintage="noise=c0s=7"
+        vibrance="vibrance=0.5"
+        temperature="colortemperature=temperature=7500"
+        equalizer="eq=gamma=1.1:contrast=0.75:saturation=0.85"
+        vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
+    "-ilford_color")
+        bloom="split [a][b];
+             [b] boxblur=0.01,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.01"
+        lens="lenscorrection=k1=-0.075:k2=-0.075"
+        chromatic="rgbashift=rh=-0.15:gh=0.15"
+        vintage="noise=c0s=7"
+        vibrance="vibrance=0.575"
+        temperature="colortemperature=temperature=9500"
+        equalizer="eq=gamma=1.155:contrast=0.85:saturation=0.65:brightness=-0.065"
+        vignette="vignette=angle=PI/4.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
+    "-lomo_lca")
+        bloom="split [a][b];
+             [b] boxblur=1.5,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.01"
+        lens="lenscorrection=k1=0.125:k2=0.015"
+        chromatic="rgbashift=rh=-0.1:gh=0.1"
+        vintage="noise=c0s=25"
+        vibrance="vibrance=0.7"
+        temperature="colortemperature=temperature=4500"
+        equalizer="eq=gamma=1.2:contrast=1.8:saturation=1.2"
+        vignette="vignette=angle=PI/1.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
+    "-lomo_wide")
+        bloom="split [a][b];
+             [b] boxblur=1.5,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.01"
+        lens="lenscorrection=k1=0.125:k2=0.015"
+        chromatic="rgbashift=rh=-0.1:gh=0.1"
+        vintage="noise=c0s=25"
+        vibrance="vibrance=0.7"
+        temperature="colortemperature=temperature=4500"
+        equalizer="eq=gamma=1.2:contrast=1.8:saturation=1.2"
+        vignette="vignette=angle=PI/1.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.5"
+     ;;
+     "-lomo_fish")
+        bloom="split [a][b];
+             [b] boxblur=1.5,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.01"
+        lens="v360=flat:fisheye:ih_fov=70:v_fov=70:h_fov=60:v_fov=45:w=360:h=360"
+        chromatic="rgbashift=rh=-0.1:gh=0.1"
+        vintage="noise=c0s=25"
+        vibrance="vibrance=0.7"
+        temperature="colortemperature=temperature=5500"
+        equalizer="eq=gamma=1.3:contrast=1.6:saturation=1.3"
+        vignette="vignette=angle=PI/1:mode=forward,scale=1.5*iw:-1,crop=w='min(iw\,ih)':h='min(iw\,ih)',scale=ih/1:ih/1,setsar=1"
+     ;;
+     "-holga_120")
+        bloom="split [a][b];
+             [b] boxblur=1.5,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.1"
+        lens="lenscorrection=k1=-0.175:k2=-0.075"
+        chromatic="rgbashift=rh=-0.01:gh=0.01"
+        vintage="noise=c0s=5"
+        vibrance="vibrance=0.8"
+        temperature="colortemperature=temperature=3500"
+        equalizer="eq=gamma=1.5:contrast=1.3:saturation=1.3"
+        vignette="vignette=angle=PI/0.25:mode=forward,scale=1.5*iw:-1,crop=w='min(iw\,ih)':h='min(iw\,ih)',scale=ih/2:ih/2,setsar=1"
+     ;;
+
   *)
     echo "Usage example: ./retro input.jpg -fuji_qs400 -leak_green"
     exit 1
@@ -145,7 +261,7 @@ case "$3" in
 esac
 
 if [[ "$FILE_TS" != "0" ]]; then
-	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:boxborderw=20|80:bordercolor=black:borderw=0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out.jpg /tmp/test_out.jpg
+	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out.jpg /tmp/test_out.jpg
 else
 	cp /tmp/out.jpg /tmp/test_out.jpg
 fi
