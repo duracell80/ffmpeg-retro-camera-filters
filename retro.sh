@@ -120,6 +120,21 @@ case "$2" in
         equalizer="eq=gamma=1.8:contrast=1.3:saturation=0.3"
         vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
     ;;
+    "-kodak_fs")
+        bloom="split [a][b];
+             [b] boxblur=0.01,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.01"
+        lens="lenscorrection=k1=0:k2=-0"
+        chromatic="rgbashift=rh=0:gh=0"
+        vintage="noise=c0s=6"
+        vibrance="vibrance=0.775"
+        temperature="colortemperature=temperature=6500"
+        equalizer="eq=gamma=1.055:contrast=0.825:saturation=0.635:brightness=-0.075"
+        vignette="vignette=angle=PI/4.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
     "-ilford_xp2")
         bloom="split [a][b];
              [b] boxblur=0.5,
@@ -272,7 +287,7 @@ case "$2" in
      ;;
 
   *)
-    echo -e "\nUsage example: ./retro input.jpg -fuji_qs400 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoors\n-fuji_qs400\n-fuji_qs200\n-fuji_instax\n-holga_120"
+    echo -e "\nUsage example: ./retro input.jpg -fuji_qs400 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoor\n-fuji_qs400\n-fuji_qs200\n-fuji_instax\n-holga_120"
     exit 1
     ;;
 esac
@@ -283,10 +298,11 @@ esac
 
 case "$3" in
   *"leak"*)
-    ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i "${1}" /tmp/test.jpg
-    ./filmgrain.sh -a 75 -A 0 -n multiplicative /tmp/test.jpg /tmp/grain.jpg
 
-    ffmpeg -y -i /tmp/grain.jpg -vf "hqdn3d=8:6:12:9,
+    ffmpeg -y -i "${1}" -vf "hqdn3d=8:6:12:9,unsharp=3:3:1.5" /tmp/smooth.jpg
+    ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i /tmp/smooth.jpg /tmp/test.jpg
+
+    ffmpeg -y -i /tmp/test.jpg -vf "${vintage},
                 ${temperature},
 		${vibrance},
                 ${equalizer},
@@ -297,8 +313,9 @@ case "$3" in
                 ${bloom}" /tmp/out.jpg
     ;;
   *)
-    ./filmgrain.sh -a 100 -A 50 -d 100 -D 100 -m no "${1}" /tmp/grain.jpg
-    ffmpeg -y -i /tmp/test.jpg -vf "${temperature},
+    ffmpeg -y -i "${1}" -vf "hqdn3d=8:6:12:9" /tmp/smooth.jpg
+    ffmpeg -y -i /tmp/smooth.jpg -vf "${vintage},
+		${temperature},
                 ${vibrance},
                 ${equalizer},
                 ${blur},
@@ -321,4 +338,4 @@ ffplay -i /tmp/test_out.jpg
 
 rm /tmp/test.jpg
 rm /tmp/out.jpg
-rm /tmp/grain.jpg
+rm /tmp/smooth.jpg
