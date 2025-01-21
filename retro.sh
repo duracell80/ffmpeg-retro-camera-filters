@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LEAK_ANGLES=$(shuf -i 0-360 -n 1)
-LEAK_LENGTH=$(shuf -i 30-135 -n 1)
+LEAK_LENGTH=$(shuf -i 30-100 -n 1)
 LEAK_ROTATE=",scale=w=2*iw:h=2*ih,rotate=angle=${LEAK_ANGLES}"
 
 LEAK_STR="[0]split[v0][v1];[v0]format=rgba,"
@@ -299,7 +299,8 @@ esac
 case "$3" in
   *"leak"*)
 
-    ffmpeg -y -i "${1}" -vf "hqdn3d=8:6:12:9,unsharp=3:3:1.5" /tmp/smooth.jpg
+    #denoise hqdn3d=8:6:12:9
+    ffmpeg -y -i "${1}" -vf "unsharp=3:3:1.5" /tmp/smooth.jpg
     ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i /tmp/smooth.jpg /tmp/test.jpg
 
     ffmpeg -y -i /tmp/test.jpg -vf "${vintage},
