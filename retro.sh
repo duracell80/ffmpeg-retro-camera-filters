@@ -284,8 +284,11 @@ esac
 case "$3" in
   *"leak"*)
     ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i "${1}" /tmp/test.jpg
-    ffmpeg -y -i /tmp/test.jpg -vf "hqdn3d=8:6:12:9,${vintage},
-                ${vibrance},
+    ./filmgrain.sh -a 75 -A 0 -n multiplicative /tmp/test.jpg /tmp/grain.jpg
+
+    ffmpeg -y -i /tmp/grain.jpg -vf "hqdn3d=8:6:12:9,
+                ${temperature},
+		${vibrance},
                 ${equalizer},
                 ${blur},
                 ${chromatic},
@@ -294,8 +297,8 @@ case "$3" in
                 ${bloom}" /tmp/out.jpg
     ;;
   *)
+    ./filmgrain.sh -a 100 -A 50 -d 100 -D 100 -m no "${1}" /tmp/grain.jpg
     ffmpeg -y -i /tmp/test.jpg -vf "${temperature},
-                ${vintage},
                 ${vibrance},
                 ${equalizer},
                 ${blur},
@@ -318,3 +321,4 @@ ffplay -i /tmp/test_out.jpg
 
 rm /tmp/test.jpg
 rm /tmp/out.jpg
+rm /tmp/grain.jpg
