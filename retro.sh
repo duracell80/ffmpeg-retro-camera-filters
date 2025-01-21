@@ -284,7 +284,7 @@ esac
 case "$3" in
   *"leak"*)
     ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i "${1}" /tmp/test.jpg
-    ffmpeg -y -i /tmp/test.jpg -vf "${vintage},
+    ffmpeg -y -i /tmp/test.jpg -vf "hqdn3d=8:6:12:9,${vintage},
                 ${vibrance},
                 ${equalizer},
                 ${blur},
