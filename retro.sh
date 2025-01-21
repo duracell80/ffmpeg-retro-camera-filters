@@ -49,7 +49,9 @@ case "$3" in
   "-leak_purple")
     LEAK_MID="geq=r=255:g=0:b=255"
     ;;
-
+  "-leak_none")
+    LEAK_MID="geq=r=0:g=0:b=0"
+    ;;
   *)
     cp "${1}" /tmp/test.jpg
     cp "${1}" /tmp/out.jpg
@@ -60,11 +62,11 @@ esac
 case "$2" in
    "-fuji_instax")
     	bloom="split [a][b];
-             [b] boxblur=4.5,
+             [b] boxblur=2.5,
                     format=gbrp [b];
              [b][a] blend=all_mode=screen:shortest=1"
 
-	blur="gblur=sigma=1.5"
+	blur="gblur=sigma=0.5"
 	lens="lenscorrection=k1=0:k2=0"
 	chromatic="rgbashift=rh=-0.01:gh=0.01"
 	vintage="noise=c0s=1"
@@ -75,11 +77,11 @@ case "$2" in
    ;;
    "-fuji_qs400")
 	bloom="split [a][b];
-             [b] boxblur=1.2,
+             [b] boxblur=0.7,
                     format=gbrp [b];
              [b][a] blend=all_mode=screen:shortest=1"
 
-	blur="gblur=sigma=1.5"
+	blur="gblur=sigma=0.5"
 	lens="lenscorrection=k1=0.125:k2=0.015"
 	chromatic="rgbashift=rh=-1.15:gh=1.15,unsharp=5:5:5"
 	vintage="noise=c0s=25"
@@ -90,11 +92,11 @@ case "$2" in
    ;;
    "-fuji_qs800")
 	bloom="split [a][b];
-             [b] boxblur=1.5,
+             [b] boxblur=0.5,
                     format=gbrp [b];
              [b][a] blend=all_mode=screen:shortest=1"
 
-	blur="gblur=sigma=1.5"
+	blur="gblur=sigma=0.4"
 	lens="lenscorrection=k1=0.125:k2=0.015"
 	chromatic="rgbashift=rh=-1.2:gh=1.2"
 	vintage="noise=c0s=7"
@@ -163,6 +165,51 @@ case "$2" in
         equalizer="eq=gamma=1.155:contrast=0.85:saturation=0.65:brightness=-0.065"
         vignette="vignette=angle=PI/4.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
     ;;
+    "-agfa_lebox")
+        bloom="split [a][b];
+             [b] boxblur=0.05,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.05"
+        lens="lenscorrection=k1=0.075:k2=0.075"
+        chromatic="rgbashift=rh=-0.45:gh=0.45"
+        vintage="noise=c0s=15"
+        vibrance="vibrance=-0.0475"
+        temperature="colortemperature=temperature=4500"
+        equalizer="eq=gamma=1.025:contrast=0.85:saturation=0.85:brightness=-0.065"
+        vignette="scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
+    "-agfa_scala")
+        bloom="split [a][b];
+             [b] boxblur=0.05,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.05"
+        lens="lenscorrection=k1=0.075:k2=0.075"
+        chromatic="rgbashift=rh=-0.45:gh=0.45,hue=s=0,unsharp=5:5:1"
+        vintage="noise=c0s=10"
+        vibrance="vibrance=-0.0475"
+        temperature="colortemperature=temperature=4500"
+        equalizer="eq=gamma=1.025:contrast=1.15:saturation=0:brightness=-0.065"
+        vignette="scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
+    "-agfa_apx")
+        bloom="split [a][b];
+             [b] boxblur=0.05,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.05"
+        lens="lenscorrection=k1=0.075:k2=0.075"
+        chromatic="rgbashift=rh=-0.45:gh=0.45,hue=s=0,unsharp=3:3:1"
+        vintage="noise=c0s=5"
+        vibrance="vibrance=-0.0475"
+        temperature="colortemperature=temperature=8500"
+        equalizer="eq=gamma=1.275:contrast=1.05:saturation=0:brightness=-0.025"
+        vignette="scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
     "-lomo_lca")
         bloom="split [a][b];
              [b] boxblur=1.5,
@@ -225,7 +272,7 @@ case "$2" in
      ;;
 
   *)
-    echo "Usage example: ./retro input.jpg -fuji_qs400 -leak_green"
+    echo -e "\nUsage example: ./retro input.jpg -fuji_qs400 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoors\n-fuji_qs400\n-fuji_qs200\n-fuji_instax\n-holga_120"
     exit 1
     ;;
 esac
