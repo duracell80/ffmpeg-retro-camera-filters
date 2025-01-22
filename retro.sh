@@ -1,5 +1,6 @@
 #!/bin/bash
 
+GRAIN_INTEN=$(shuf -i 5-45 -n 1)
 LEAK_ANGLES=$(shuf -i 0-360 -n 1)
 LEAK_LENGTH=$(shuf -i 30-100 -n 1)
 LEAK_ROTATE=",scale=w=2*iw:h=2*ih,rotate=angle=${LEAK_ANGLES}"
@@ -53,8 +54,7 @@ case "$3" in
     LEAK_MID="geq=r=0:g=0:b=0"
     ;;
   *)
-    cp "${1}" /tmp/test.jpg
-    cp "${1}" /tmp/out.jpg
+    cp "${1}" /tmp/retrocam.jpg
     ;;
 esac
 
@@ -84,10 +84,10 @@ case "$2" in
 	blur="gblur=sigma=0.5"
 	lens="lenscorrection=k1=0.125:k2=0.015"
 	chromatic="rgbashift=rh=-1.15:gh=1.15,unsharp=5:5:5"
-	vintage="noise=c0s=25"
-	vibrance="vibrance=-0.25"
-	temperature="colortemperature=temperature=15000"
-	equalizer="eq=gamma=0.55:contrast=1.25:saturation=0.5:brightness=0.05"
+	vintage="noise=c0s=3"
+	vibrance="vibrance=0.55"
+	temperature="colortemperature=temperature=5500"
+	equalizer="eq=gamma=0.95:contrast=1.25:saturation=0.6:brightness=0.15"
 	vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
    ;;
    "-fuji_qs800")
@@ -98,9 +98,9 @@ case "$2" in
 
 	blur="gblur=sigma=0.4"
 	lens="lenscorrection=k1=0.125:k2=0.015"
-	chromatic="rgbashift=rh=-1.2:gh=1.2"
-	vintage="noise=c0s=7"
-	vibrance="vibrance=0.2"
+	chromatic="rgbashift=rh=-1.175:gh=1.175"
+	vintage="noise=c0s=6"
+	vibrance="vibrance=0.25"
 	temperature="colortemperature=temperature=6000"
 	equalizer="eq=gamma=1.5:contrast=1.1:saturation=0.8"
 	vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
@@ -122,17 +122,17 @@ case "$2" in
     ;;
     "-kodak_fs")
         bloom="split [a][b];
-             [b] boxblur=0.01,
+             [b] boxblur=0.05,
                     format=gbrp [b];
              [b][a] blend=all_mode=screen:shortest=1"
 
-        blur="gblur=sigma=0.01"
+        blur="gblur=sigma=0.05"
         lens="lenscorrection=k1=0:k2=-0"
         chromatic="rgbashift=rh=0:gh=0"
-        vintage="noise=c0s=6"
-        vibrance="vibrance=0.775"
+        vintage="noise=c0s=3"
+        vibrance="vibrance=0.675"
         temperature="colortemperature=temperature=6500"
-        equalizer="eq=gamma=1.055:contrast=0.825:saturation=0.635:brightness=-0.075"
+        equalizer="eq=gamma=1.035:contrast=0.875:saturation=0.535:brightness=-0.085"
         vignette="vignette=angle=PI/4.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
     ;;
     "-ilford_xp2")
@@ -285,25 +285,42 @@ case "$2" in
         equalizer="eq=gamma=1.5:contrast=1.3:saturation=1.3"
         vignette="vignette=angle=PI/0.25:mode=forward,scale=1.5*iw:-1,crop=w='min(iw\,ih)':h='min(iw\,ih)',scale=ih/2:ih/2,setsar=1"
      ;;
+     "-eink")
+        bloom="split [a][b];
+             [b] boxblur=0,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.0"
+        lens="lenscorrection=k1=0:k2=0"
+        chromatic="rgbashift=rh=0:gh=0"
+        vintage="noise=c0s=1"
+        vibrance="vibrance=-0.55"
+        temperature="colortemperature=temperature=9500"
+        equalizer="eq=gamma=0.5:contrast=0.5:saturation=0.3"
+        vignette="vignette=angle=PI/20.25:mode=forward,scale=1.5*iw:-1:sws_dither=ed"
+     ;;
 
   *)
-    echo -e "\nUsage example: ./retro input.jpg -fuji_qs400 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoor\n-fuji_qs400\n-fuji_qs200\n-fuji_instax\n-holga_120"
+    echo -e "\nUsage example: ./retro input.jpg -fuji_qs800 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-kodak_fs\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoor\n-fuji_qs400\n-fuji_qs800\n-fuji_instax\n-holga_120\n-eink"
     exit 1
     ;;
 esac
 
-
-
+# EXTRACT FILM GRAIN
+BLEND_PC=$(echo "scale=2; $GRAIN_INTEN / 100" | bc)
+convert "${1}" -remap pattern:gray30 /tmp/grain.gif
 
 
 case "$3" in
   *"leak"*)
 
-    #denoise hqdn3d=8:6:12:9
-    ffmpeg -y -i "${1}" -vf "unsharp=3:3:1.5" /tmp/smooth.jpg
-    ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i /tmp/smooth.jpg /tmp/test.jpg
+    ffmpeg -y -i "${1}" -vf "unsharp=3:3:1.5" /tmp/sharp.jpg
+    ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i /tmp/sharp.jpg /tmp/out.jpg
 
-    ffmpeg -y -i /tmp/test.jpg -vf "${vintage},
+    ffmpeg -y -i /tmp/out.jpg -i /tmp/grain.gif -filter_complex "[0][1]blend=all_mode='overlay':all_opacity=${BLEND_PC}" /tmp/out_1.jpg
+
+    ffmpeg -y -i /tmp/out_1.jpg -vf "${vintage},
                 ${temperature},
 		${vibrance},
                 ${equalizer},
@@ -311,11 +328,11 @@ case "$3" in
                 ${chromatic},
                 ${lens},
                 ${vignette},
-                ${bloom}" /tmp/out.jpg
+                ${bloom}" /tmp/out_2.jpg
     ;;
   *)
-    ffmpeg -y -i "${1}" -vf "hqdn3d=8:6:12:9" /tmp/smooth.jpg
-    ffmpeg -y -i /tmp/smooth.jpg -vf "${vintage},
+    ffmpeg -y -i "${1}" -vf "hqdn3d=8:6:12:9" /tmp/sharp.jpg
+    ffmpeg -y -i /tmp/sharp.jpg -vf "${vintage},
 		${temperature},
                 ${vibrance},
                 ${equalizer},
@@ -323,20 +340,25 @@ case "$3" in
                 ${chromatic},
                 ${lens},
                 ${vignette},
-                ${bloom}" /tmp/out.jpg
+                ${bloom}" /tmp/out_2.jpg
 
     ;;
 esac
 
+#composite -gravity center /tmp/out_2.jpg /tmp/grain.gif /tmp/out.jpg
+#ffmpeg -i /tmp/out_2.jpg -i /tmp/grain.gif -filter_complex "[0][1]blend=all_mode='overlay':all_opacity=0.7" /tmp/out.jpg
+
 if [[ "$FILE_TS" != "0" ]]; then
-	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out.jpg /tmp/test_out.jpg
+	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out_2.jpg /tmp/retrocam.jpg
 else
-	cp /tmp/out.jpg /tmp/test_out.jpg
+	cp /tmp/out_2.jpg /tmp/retrocam.jpg
 fi
 
-ffplay -i /tmp/test_out.jpg
+ffplay -i /tmp/retrocam.jpg
 
 
-rm /tmp/test.jpg
-rm /tmp/out.jpg
-rm /tmp/smooth.jpg
+#rm /tmp/out.jpg
+#rm /tmp/out_1.jpg
+#rm /tmp/out_2.jpg
+#rm /tmp/sharp.jpg
+#rm /tmp/grain.gif
