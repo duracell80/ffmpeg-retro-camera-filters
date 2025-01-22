@@ -132,8 +132,38 @@ case "$2" in
         vintage="noise=c0s=3"
         vibrance="vibrance=0.675"
         temperature="colortemperature=temperature=6500"
-        equalizer="eq=gamma=1.035:contrast=0.875:saturation=0.535:brightness=-0.085"
-        vignette="vignette=angle=PI/4.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+        equalizer="eq=gamma=1.035:contrast=0.875:saturation=0.635:brightness=-0.085"
+        vignette="vignette=angle=PI/9.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+    ;;
+    "-kodak_gold-200")
+        bloom="split [a][b];
+             [b] boxblur=0.200,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.25"
+        lens="lenscorrection=k1=-0.0320:k2=-0.0320"
+        chromatic="rgbashift=rh=0.0300:gh=0.0300"
+        vintage="noise=c0s=4.4200"
+        vibrance="vibrance=0.7500"
+        temperature="colortemperature=temperature=6200"
+        equalizer="eq=gamma=1.200:contrast=0.9200:saturation=0.5200:brightness=-0.100"
+        vignette="vignette=angle=PI/4.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+    ;;
+    "-kodak_plus-200")
+        bloom="split [a][b];
+             [b] boxblur=0.200,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.25"
+        lens="lenscorrection=k1=-0.0320:k2=-0.0320"
+        chromatic="rgbashift=rh=0.0200:gh=0.0200"
+        vintage="noise=c0s=2.200"
+        vibrance="vibrance=0.550"
+        temperature="colortemperature=temperature=7500"
+        equalizer="eq=gamma=0.72:contrast=0.75200:saturation=0.5200:brightness=0.0225"
+        vignette="vignette=angle=PI/4.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
     ;;
     "-ilford_xp2")
         bloom="split [a][b];
