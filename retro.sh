@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GRAIN_INTEN=$(shuf -i 5-45 -n 1)
+GRAIN_INTEN=$(shuf -i 7-45 -n 1)
 LEAK_ANGLES=$(shuf -i 0-360 -n 1)
 LEAK_LENGTH=$(shuf -i 30-100 -n 1)
 LEAK_ROTATE=",scale=w=2*iw:h=2*ih,rotate=angle=${LEAK_ANGLES}"
@@ -332,14 +332,16 @@ case "$2" in
      ;;
 
   *)
-    echo -e "\nUsage example: ./retro input.jpg -fuji_qs800 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-kodak_fs\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoor\n-fuji_qs400\n-fuji_qs800\n-fuji_instax\n-holga_120\n-eink"
+    echo -e "\nUsage example: ./retro input.jpg -fuji_qs800 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-kodak_fs\n-kodak_gold-200\n-kodak_plus-200\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoor\n-fuji_qs400\n-fuji_qs800\n-fuji_instax\n-holga_120\n-eink"
     exit 1
     ;;
 esac
 
 # EXTRACT FILM GRAIN
 BLEND_PC=$(echo "scale=2; $GRAIN_INTEN / 100" | bc)
-convert "${1}" -remap pattern:gray30 /tmp/grain.gif
+
+convert "${1}" -dither FloydSteinberg -remap pattern:gray50 /tmp/grain.jpg
+#convert /tmp/grain_fade.gif -channel RGB -negate /tmp/grain.jpg
 
 
 case "$3" in
@@ -348,7 +350,7 @@ case "$3" in
     ffmpeg -y -i "${1}" -vf "unsharp=3:3:1.5" /tmp/sharp.jpg
     ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i /tmp/sharp.jpg /tmp/out.jpg
 
-    ffmpeg -y -i /tmp/out.jpg -i /tmp/grain.gif -filter_complex "[0][1]blend=all_mode='overlay':all_opacity=${BLEND_PC}" /tmp/out_1.jpg
+    ffmpeg -y -i /tmp/out.jpg -i /tmp/grain.jpg -filter_complex "[0][1]blend=all_mode='overlay':all_opacity=${BLEND_PC}" /tmp/out_1.jpg
 
     ffmpeg -y -i /tmp/out_1.jpg -vf "${vintage},
                 ${temperature},
