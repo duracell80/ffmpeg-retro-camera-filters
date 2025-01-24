@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GRAIN_INTEN=$(shuf -i 7-45 -n 1)
+GRAIN_INTEN=$(shuf -i 5-35 -n 1)
 LEAK_ANGLES=$(shuf -i 0-360 -n 1)
 LEAK_LENGTH=$(shuf -i 30-100 -n 1)
 LEAK_ROTATE=",scale=w=2*iw:h=2*ih,rotate=angle=${LEAK_ANGLES}"
@@ -337,20 +337,48 @@ case "$2" in
     ;;
 esac
 
+# RESCALE PHOTO to HD Only
+ffmpeg -y -i "${1}" /tmp/base.jpg
+
 # EXTRACT FILM GRAIN
 BLEND_PC=$(echo "scale=2; $GRAIN_INTEN / 100" | bc)
+convert /tmp/base.jpg -dither FloydSteinberg -remap pattern:gray50 /tmp/grain_dots.jpg
 
-convert "${1}" -dither FloydSteinberg -remap pattern:gray50 /tmp/grain.jpg
-#convert /tmp/grain_fade.gif -channel RGB -negate /tmp/grain.jpg
+# EXTRACT PRINT TEXTURE
+FRAME_TT=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 texture.mp4) #1
+FRAME_RT=$(ffprobe -v 0 -of csv=p=0 -select_streams v:0 -show_entries stream=r_frame_rate texture.mp4) #2
+FRAME_N1=$(echo $FRAME_RT | cut -d '/' -f1) #3
+FRAME_N2=$(echo $FRAME_RT | cut -d '/' -f2) #4
+FRAME_FS=$(expr $FRAME_N1 / $FRAME_N2) #5
 
+FRAME_RD=$(shuf -i 1-$FRAME_TT -n 1) #6
+FRAME_SS=$(expr $FRAME_RD / $FRAME_FS) #7
+
+PHOTO_DI=$(ffprobe -v error -show_entries stream=width,height -of default=noprint_wrappers=1:nokey=1 /tmp/base.jpg) #8
+PHOTO_D1=$(echo $PHOTO_DI | cut -d ' ' -f1)
+PHOTO_D2=$(echo $PHOTO_DI | cut -d ' ' -f2)
+
+
+# 1, get total number of frames of texture
+# 2, get the raw framerate
+# 3,4,5 get the fps, for example 23
+# 6, 7 pick at random a frame number
+# 8 get photo size
+# 9 convert that to seconds to seek to at the start of the stream
+
+
+ffmpeg -y -ss $FRAME_SS -i texture.mp4 -frames:v 1 -vf scale=$PHOTO_D1:$PHOTO_D2 /tmp/texture.jpg
+convert /tmp/texture.jpg -dither FloydSteinberg -remap pattern:gray50 /tmp/texture_dots.jpg
+
+ffmpeg -y -i /tmp/texture_dots.jpg -i /tmp/grain_dots.jpg -filter_complex "[0][1]blend=all_mode='screen':all_opacity=1" /tmp/grain.jpg
 
 case "$3" in
   *"leak"*)
 
-    ffmpeg -y -i "${1}" -vf "unsharp=3:3:1.5" /tmp/sharp.jpg
+    ffmpeg -y -i /tmp/base.jpg -vf "unsharp=3:3:1.5" /tmp/sharp.jpg
     ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i /tmp/sharp.jpg /tmp/out.jpg
 
-    ffmpeg -y -i /tmp/out.jpg -i /tmp/grain.jpg -filter_complex "[0][1]blend=all_mode='overlay':all_opacity=${BLEND_PC}" /tmp/out_1.jpg
+    ffmpeg -y -i /tmp/out.jpg -i /tmp/grain.jpg -filter_complex "[0][1]blend=all_mode='softlight':all_opacity=${BLEND_PC}" /tmp/out_1.jpg
 
     ffmpeg -y -i /tmp/out_1.jpg -vf "${vintage},
                 ${temperature},
