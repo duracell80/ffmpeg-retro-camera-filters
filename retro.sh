@@ -370,7 +370,7 @@ PHOTO_D2=$(echo $PHOTO_DI | cut -d ' ' -f2)
 ffmpeg -y -ss $FRAME_SS -i texture.mp4 -frames:v 1 -vf scale=$PHOTO_D1:$PHOTO_D2 /tmp/texture.jpg
 convert /tmp/texture.jpg -dither FloydSteinberg -remap pattern:gray50 /tmp/texture_dots.jpg
 
-ffmpeg -y -i /tmp/texture_dots.jpg -i /tmp/grain_dots.jpg -filter_complex "[0][1]blend=all_mode='screen':all_opacity=0.5" /tmp/grain.jpg
+ffmpeg -y -i /tmp/texture_dots.jpg -i /tmp/grain_dots.jpg -filter_complex "[0][1]blend=all_mode='softlight':all_opacity=0.65" /tmp/grain.jpg
 
 case "$3" in
   *"leak"*)
