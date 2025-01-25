@@ -344,14 +344,14 @@ ffmpeg -y -i "${1}" -vf "${blur}" /tmp/base.png
 BLEND_PC=$(echo "scale=2; $GRAIN_INTEN / 100" | bc)
 
 # EXTRACT PRINT TEXTURE
-FRAME_TT=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 texture.mp4) #1
-FRAME_RT=$(ffprobe -v 0 -of csv=p=0 -select_streams v:0 -show_entries stream=r_frame_rate texture.mp4) #2
-FRAME_N1=$(echo $FRAME_RT | cut -d '/' -f1) #3
-FRAME_N2=$(echo $FRAME_RT | cut -d '/' -f2) #4
-FRAME_FS=$(expr $FRAME_N1 / $FRAME_N2) #5
+#FRAME_TT=$(ffprobe -v error -select_streams v:0 -count_packets -show_entries stream=nb_read_packets -of csv=p=0 texture.mp4) #1
+#FRAME_RT=$(ffprobe -v 0 -of csv=p=0 -select_streams v:0 -show_entries stream=r_frame_rate texture.mp4) #2
+#FRAME_N1=$(echo $FRAME_RT | cut -d '/' -f1) #3
+#FRAME_N2=$(echo $FRAME_RT | cut -d '/' -f2) #4
+#FRAME_FS=$(expr $FRAME_N1 / $FRAME_N2) #5
 
-FRAME_RD=$(shuf -i 1-$FRAME_TT -n 1) #6
-FRAME_SS=$(expr $FRAME_RD / $FRAME_FS) #7
+#FRAME_RD=$(shuf -i 1-$FRAME_TT -n 1) #6
+#FRAME_SS=$(expr $FRAME_RD / $FRAME_FS) #7
 
 PHOTO_DI=$(ffprobe -v error -show_entries stream=width,height -of default=noprint_wrappers=1:nokey=1 "${1}") #8
 PHOTO_D1=$(echo $PHOTO_DI | cut -d ' ' -f1)
@@ -366,18 +366,20 @@ PHOTO_D2=$(echo $PHOTO_DI | cut -d ' ' -f2)
 # 9 convert that to seconds to seek to at the start of the stream
 
 
-#DITHER_TYPE="Riemersma"
-DITHER_TYPE="FloydSteinberg"
+DITHER_TYPE="Riemersma"
+#DITHER_TYPE="FloydSteinberg"
 
-convert "${1}" -dither $DITHER_TYPE -remap pattern:gray50 /tmp/grain_dots.png
+convert "${1}" -dither $DITHER_TYPE -remap pattern:gray50 /tmp/grain.png
 
 
 
-ffmpeg -y -ss $FRAME_SS -i texture.mp4 -frames:v 1 -vf scale=$PHOTO_D1:$PHOTO_D2 /tmp/texture.png
+#ffmpeg -y -ss $FRAME_SS -i texture.mp4 -frames:v 1 -vf scale=$PHOTO_D1:$PHOTO_D2 /tmp/texture.png
 #ffmpeg -y -i /tmp/texture_dots.png -i /tmp/grain_dots.png -filter_complex "[0][1]blend=all_mode='overlaylight':all_opacity=0.65" /tmp/grain_merged.png
 
-convert /tmp/texture.png /tmp/grain_dots.png -compose blend -define compose:args=0.35,0.35 -composite /tmp/grain_merged.png
-convert /tmp/grain_merged.png -dither FloydSteinberg -remap pattern:gray50 /tmp/grain.png
+#ffmpeg -y -i texture.jpg -vf scale=$PHOTO_D1:$PHOTO_D2 /tmp/texture.png
+
+#convert /tmp/texture.png /tmp/grain_dots.png -compose blend -define compose:args=0.25,0.25 -composite -level 0%,100%,0.5 /tmp/grain_merged.png
+#convert /tmp/grain_merged.png -dither $DITHER_TYPE -remap pattern:gray50 /tmp/grain.png
 
 
 case "$3" in
@@ -386,7 +388,7 @@ case "$3" in
     #ffmpeg -y -i /tmp/base.png -vf "unsharp=3:3:1.5" /tmp/sharp.png
     ffmpeg -y -filter_complex "${LEAK_STR}${LEAK_MID}${LEAK_END}" -i /tmp/base.png /tmp/out.png
 
-    ffmpeg -y -i /tmp/base.png -i /tmp/grain.png -filter_complex "[0][1]blend=all_mode='hardlight':all_opacity=${BLEND_PC}" /tmp/out_1.png
+    ffmpeg -y -i /tmp/out.png -i /tmp/grain.png -filter_complex "[0][1]blend=all_mode='hardlight':all_opacity=0.15" /tmp/out_1.png
     #convert "${1}" /tmp/grain.png -compose SoftLight -define compose:args=0,0 -composite /tmp/out_1.png
     ffmpeg -y -i /tmp/out_1.png -vf "${vintage},
                 ${temperature},
@@ -395,7 +397,7 @@ case "$3" in
                 ${chromatic},
                 ${lens},
                 ${vignette},
-                ${bloom}" /tmp/out_2.png
+                ${bloom}" /tmp/out.png
     ;;
   *)
     ffmpeg -y -i "${1}" -vf "hqdn3d=8:6:12:9" /tmp/sharp.png
@@ -407,19 +409,16 @@ case "$3" in
                 ${chromatic},
                 ${lens},
                 ${vignette},
-                ${bloom}" /tmp/out_2.png
+                ${bloom}" /tmp/out.png
 
     ;;
 esac
 
-#composite -gravity center /tmp/out_2.jpg /tmp/grain.gif /tmp/out.jpg
-#ffmpeg -i /tmp/out_2.jpg -i /tmp/grain.gif -filter_complex "[0][1]blend=all_mode='overlay':all_opacity=0.7" /tmp/out.jpg
 
 if [[ "$FILE_TS" != "0" ]]; then
-	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out_2.png /tmp/retrocam.jpg
+	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out.png /tmp/retrocam.jpg
 else
-	ffmpeg -y -i /tmp/out_2.png /tmp/retrocam.jpg
-	#cp /tmp/out_2.jpg /tmp/retrocam.jpg
+	convert /tmp/out.png /tmp/retrocam.jpg
 fi
 
 ffplay -i /tmp/retrocam.jpg
