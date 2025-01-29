@@ -74,6 +74,8 @@ case "$2" in
 	temperature="colortemperature=temperature=8000"
 	equalizer="eq=gamma=1.25:contrast=1.05:saturation=0.9"
 	vignette="drawbox=x=0:y=0:w=2:h=ih:color=black@0.5:thickness=fill"
+
+	GRAIN_INTEN=4
    ;;
    "-fuji_qs400")
 	bloom="split [a][b];
@@ -89,6 +91,8 @@ case "$2" in
 	temperature="colortemperature=temperature=5500"
 	equalizer="eq=gamma=0.95:contrast=1.25:saturation=0.6:brightness=0.15"
 	vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=15
    ;;
    "-fuji_qs800")
 	bloom="split [a][b];
@@ -104,6 +108,8 @@ case "$2" in
 	temperature="colortemperature=temperature=6000"
 	equalizer="eq=gamma=1.5:contrast=1.1:saturation=0.8"
 	vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=10
     ;;
     "-fuji_qs-outdoor")
         bloom="split [a][b];
@@ -134,6 +140,8 @@ case "$2" in
         temperature="colortemperature=temperature=6500"
         equalizer="eq=gamma=1.035:contrast=0.875:saturation=0.635:brightness=-0.085"
         vignette="vignette=angle=PI/9.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=25
     ;;
     "-kodak_gold-200")
         bloom="split [a][b];
@@ -149,6 +157,8 @@ case "$2" in
         temperature="colortemperature=temperature=6200"
         equalizer="eq=gamma=1.200:contrast=0.9200:saturation=0.5200:brightness=-0.100"
         vignette="vignette=angle=PI/4.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+
+	GRAIN_INTEN=18
     ;;
     "-kodak_plus-200")
         bloom="split [a][b];
@@ -164,7 +174,95 @@ case "$2" in
         temperature="colortemperature=temperature=7500"
         equalizer="eq=gamma=0.72:contrast=0.75200:saturation=0.5200:brightness=0.0225"
         vignette="vignette=angle=PI/4.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+
+	GRAIN_INTEN=20
     ;;
+    "-kodak_kodacolor-200")
+        bloom="split [a][b];
+             [b] boxblur=0.200,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.25"
+        lens="lenscorrection=k1=-0.0320:k2=-0.0320"
+        chromatic="rgbashift=rh=0.0600:gh=0.0600"
+        vintage="noise=c0s=4.4200"
+        vibrance="vibrance=0.8600"
+        temperature="colortemperature=temperature=7200"
+        equalizer="eq=gamma=1.125:contrast=0.9800:saturation=0.7200:brightness=-0.110"
+        vignette="vignette=angle=PI/8.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+
+        GRAIN_INTEN=25
+    ;;
+    "-kodak_ektar-100")
+        bloom="split [a][b];
+             [b] boxblur=0.200,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.25"
+        lens="lenscorrection=k1=-0.0320:k2=-0.0320"
+        chromatic="rgbashift=rh=0.0600:gh=0.0600"
+        vintage="noise=c0s=4.4200"
+        vibrance="vibrance=0.9600"
+        temperature="colortemperature=temperature=6200"
+        equalizer="eq=gamma=1.155:contrast=1.110:saturation=0.7500:brightness=-0.050"
+        vignette="vignette=angle=PI/3.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+
+        GRAIN_INTEN=8
+    ;;
+    "-kodak_porta-400")
+        bloom="split [a][b];
+             [b] boxblur=0.100,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.15"
+        lens="lenscorrection=k1=-0.0320:k2=-0.0320"
+        chromatic="rgbashift=rh=0.0600:gh=0.0600"
+        vintage="noise=c0s=4.4200"
+        vibrance="vibrance=0.6300"
+        temperature="colortemperature=temperature=6200"
+        equalizer="eq=gamma=1.125:contrast=0.8500:saturation=0.6000:brightness=-0.150"
+        vignette="vignette=angle=PI/8.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+
+        GRAIN_INTEN=8
+    ;;
+    "-kodak_porta-800")
+        bloom="split [a][b];
+             [b] boxblur=0.100,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.15"
+        lens="lenscorrection=k1=-0.0320:k2=-0.0320"
+        chromatic="rgbashift=rh=0.0600:gh=0.0600"
+        vintage="noise=c0s=4.4200"
+        vibrance="vibrance=0.4300"
+        temperature="colortemperature=temperature=6700"
+        equalizer="eq=gamma=1.115:contrast=0.9100:saturation=0.6900:brightness=-0.130"
+        vignette="vignette=angle=PI/8.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+
+        GRAIN_INTEN=6
+    ;;
+    "-kodak_ultramax-400")
+        bloom="split [a][b];
+             [b] boxblur=0.200,
+                    format=gbrp [b];
+             [b][a] blend=all_mode=screen:shortest=1"
+
+        blur="gblur=sigma=0.15"
+        lens="lenscorrection=k1=-0.0320:k2=-0.0320"
+        chromatic="rgbashift=rh=0.0600:gh=0.0600"
+        vintage="noise=c0s=4.4200"
+        vibrance="vibrance=0.9200"
+        temperature="colortemperature=temperature=5900"
+        equalizer="eq=gamma=1.155:contrast=0.9300:saturation=0.7900:brightness=-0.065"
+        vignette="vignette=angle=PI/8.75:mode=forward,scale=1.05*iw:-1,crop=iw/1.05:ih/1.05"
+
+        GRAIN_INTEN=2
+    ;;
+
     "-ilford_xp2")
         bloom="split [a][b];
              [b] boxblur=0.5,
@@ -179,6 +277,8 @@ case "$2" in
         temperature="colortemperature=temperature=5500"
         equalizer="eq=gamma=0.5:contrast=1.5:saturation=0"
         vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=30
     ;;
     "-ilford_hp5")
         bloom="split [a][b];
@@ -194,6 +294,8 @@ case "$2" in
         temperature="colortemperature=temperature=7500"
         equalizer="eq=gamma=1.1:contrast=0.75:saturation=0.85"
         vignette="vignette=angle=PI/3.4:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=5
     ;;
     "-ilford_color")
         bloom="split [a][b];
@@ -209,6 +311,8 @@ case "$2" in
         temperature="colortemperature=temperature=9500"
         equalizer="eq=gamma=1.155:contrast=0.85:saturation=0.65:brightness=-0.065"
         vignette="vignette=angle=PI/4.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=15
     ;;
     "-agfa_lebox")
         bloom="split [a][b];
@@ -224,6 +328,8 @@ case "$2" in
         temperature="colortemperature=temperature=4500"
         equalizer="eq=gamma=1.025:contrast=0.85:saturation=0.85:brightness=-0.065"
         vignette="scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=45
     ;;
     "-agfa_scala")
         bloom="split [a][b];
@@ -239,6 +345,8 @@ case "$2" in
         temperature="colortemperature=temperature=4500"
         equalizer="eq=gamma=1.025:contrast=1.15:saturation=0:brightness=-0.065"
         vignette="scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=25
     ;;
     "-agfa_apx")
         bloom="split [a][b];
@@ -254,6 +362,8 @@ case "$2" in
         temperature="colortemperature=temperature=8500"
         equalizer="eq=gamma=1.275:contrast=1.05:saturation=0:brightness=-0.025"
         vignette="scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=28
     ;;
     "-lomo_lca")
         bloom="split [a][b];
@@ -269,6 +379,8 @@ case "$2" in
         temperature="colortemperature=temperature=4500"
         equalizer="eq=gamma=1.2:contrast=1.8:saturation=1.2"
         vignette="vignette=angle=PI/1.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.15"
+
+	GRAIN_INTEN=12
     ;;
     "-lomo_wide")
         bloom="split [a][b];
@@ -284,6 +396,8 @@ case "$2" in
         temperature="colortemperature=temperature=4500"
         equalizer="eq=gamma=1.2:contrast=1.8:saturation=1.2"
         vignette="vignette=angle=PI/1.75:mode=forward,scale=1.15*iw:-1,crop=iw/1.15:ih/1.5"
+
+	GRAIN_INTEN=12
      ;;
      "-lomo_fish")
         bloom="split [a][b];
@@ -299,6 +413,8 @@ case "$2" in
         temperature="colortemperature=temperature=5500"
         equalizer="eq=gamma=1.3:contrast=1.6:saturation=1.3"
         vignette="vignette=angle=PI/1:mode=forward,scale=1.5*iw:-1,crop=w='min(iw\,ih)':h='min(iw\,ih)',scale=ih/1:ih/1,setsar=1"
+
+	GRAIN_INTEN=15
      ;;
      "-holga_120")
         bloom="split [a][b];
@@ -314,6 +430,8 @@ case "$2" in
         temperature="colortemperature=temperature=3500"
         equalizer="eq=gamma=1.5:contrast=1.3:saturation=1.3"
         vignette="vignette=angle=PI/0.25:mode=forward,scale=1.5*iw:-1,crop=w='min(iw\,ih)':h='min(iw\,ih)',scale=ih/2:ih/2,setsar=1"
+
+	GRAIN_INTEN=35
      ;;
      "-eink")
         bloom="split [a][b];
@@ -329,10 +447,12 @@ case "$2" in
         temperature="colortemperature=temperature=9500"
         equalizer="eq=gamma=0.5:contrast=0.5:saturation=0.3"
         vignette="vignette=angle=PI/20.25:mode=forward,scale=1.5*iw:-1:sws_dither=ed"
+
+	GRAIN_INTEN=3
      ;;
 
   *)
-    echo -e "\nUsage example: ./retro input.jpg -fuji_qs800 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-kodak_fs\n-kodak_gold-200\n-kodak_plus-200\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoor\n-fuji_qs400\n-fuji_qs800\n-fuji_instax\n-holga_120\n-eink"
+    echo -e "\nUsage example: ./retro input.jpg -fuji_qs800 -leak_none 1\n\nFilter list:\n-agfa_lebox\n-agfa_scala\n-agfa_apx\n-kodak_kodacolor-200\n-kodak_ektar-100\n-kodak_ultramax-400\n-kodak_porta-400\n-kodak_porta-800\n-kodak_fs\n-kodak_gold-200\n-kodak_plus-200\n-lomo_fish\n-lomo_wide\n-lomo_lca\n-ilford_color\n-ilford_hp5\n-ilford_xp2\n-fuji_qs-outdoor\n-fuji_qs400\n-fuji_qs800\n-fuji_instax\n-holga_120\n-eink"
     exit 1
     ;;
 esac
