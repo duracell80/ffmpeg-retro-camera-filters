@@ -536,12 +536,19 @@ esac
 
 
 if [[ "$FILE_TS" != "0" ]]; then
-	ffmpeg -y -filter_complex "drawtext=fontfile=fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out.png /tmp/retrocam.jpg
+	ffmpeg -y -filter_complex "drawtext=fontfile=/home/${USER}/.local/share/fonts/e1234.ttf:fontsize=(h/25):x=w-tw-(h/10):y=h-th-(h/10):text='%{pts\:gmtime\:$FILE_TS\:%d-%m-%Y %T}':fontcolor=orange@0.6:box=1:boxcolor=orange@0:shadowcolor=black@0:shadowx=1:shadowy=1" -i /tmp/out.png /tmp/retrocam.jpg
 else
 	convert /tmp/out.png /tmp/retrocam.jpg
 fi
 
-ffplay -i /tmp/retrocam.jpg
+
+IMG_TS=$(date +%s)
+
+mkdir -p /home/$USER/Pictures/Retrocam/$2
+
+#cp /tmp/retrocam.jpg "/home/${USER}/Pictures/Retrocam/${2}/IMG_${IMG_TS}.jpg"
+cp /tmp/retrocam.jpg "/home/${USER}/Pictures/Retrocam/${2}/${1}"
+#ffplay -i /tmp/retrocam.jpg
 
 
 #rm /tmp/out.jpg
